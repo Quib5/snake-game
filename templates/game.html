@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h2>Welcome, {{ username }}!</h2>
+<a href="/leaderboard">Leaderboard</a> | <a href="/logout">Logout</a>
+
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+
+<script src="/static/snake.js"></script>
+<script>
+    startSnake("{{ username }}");
+</script>
+
+</body>
+</html>
