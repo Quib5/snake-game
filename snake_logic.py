@@ -49,6 +49,8 @@ class SnakeGame:
         if new_head == self.food:
             self.score += 1
             self.food = self._new_food()
+        # grow snake by 2 instead of 1
+            self.snake.insert(0, new_head)
         else:
             self.snake.pop()
 
