@@ -18,18 +18,25 @@
     </div>
 
     <!-- RIGHT: GAME + SCORE -->
-    <div>
+    <div id="gameContainer" style="display:none;">
         <h3>Score: <span id="scoreDisplay">0</span></h3>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
     </div>
+
 
 </div>
 
 <a href="/logout">Logout</a>
 
 <script src="/static/snake.js"></script>
+<button id="startBtn" onclick="startSnake('{{ username }}')"
+        style="padding:10px 20px; font-size:18px; margin:20px;">
+    Start Game
+</button>
+
+<!-- Hide canvas until game starts -->
 <script>
-    startSnake("{{ username }}");
+    document.getElementById("gameCanvas").style.display = "none";
 </script>
 </body>
 </html>
