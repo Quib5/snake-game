@@ -3,30 +3,50 @@ let username;
 
 function startSnake(user) {
     username = user;
+    paused = false;
+
+    // Show game & hide button
+    document.getElementById("startBtn").style.display = "none";
+    document.getElementById("gameContainer").style.display = "block";
+
+    // Create socket
     socket = io();
 
     socket.emit("start_game", {username: username});
 
     socket.on("state_update", (state) => {
-    document.getElementById("scoreDisplay").textContent = state.score;
-    draw(state.snake, state.food, state.score);
+        if (!paused) {
+            document.getElementById("scoreDisplay").textContent = state.score;
+            draw(state.snake, state.food, state.score);
+        }
     });
-
 
     socket.on("game_over", (data) => {
         alert("Game Over! Score: " + data.score);
-        window.location.href = "/leaderboard";
+        window.location.reload();
     });
 
+    // Movement + Pause
     document.addEventListener("keydown", (e) => {
-        if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+        // Pause toggle
+        if (e.key.toLowerCase() === "p") {
+            paused = !paused;
+            if (paused) drawPause();
+            return;
+        }
+
+        // Movement
+        if (!paused && ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
             let d = e.key.replace("Arrow", "").toUpperCase();
             socket.emit("change_direction", {username: username, direction: d});
         }
     });
 
-    setInterval(() => {
-        socket.emit("tick", {username: username});
+    // Tick loop (only when not paused)
+    tickInterval = setInterval(() => {
+        if (!paused) {
+            socket.emit("tick", {username: username});
+        }
     }, 150);
 }
 
