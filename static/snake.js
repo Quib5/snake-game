@@ -1,5 +1,7 @@
 let socket;
 let username;
+let gameOverLock = false;
+
 
 function startSnake(user) {
     username = user;
@@ -22,9 +24,21 @@ function startSnake(user) {
     });
 
     socket.on("game_over", (data) => {
-        alert("Game Over! Score: " + data.score);
-        window.location.reload();
-    });
+
+    if (gameOverLock) return;  // Ignore duplicates
+    gameOverLock = true;
+
+    clearInterval(tickInterval);
+    tickInterval = null;
+
+    paused = true;
+
+    alert("Game Over! Score: " + data.score);
+
+    window.location.reload();
+});
+
+
 
     // Movement + Pause
     document.addEventListener("keydown", (e) => {
