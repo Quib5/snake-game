@@ -4,20 +4,22 @@ def init_db():
     conn = sqlite3.connect("snake.db")
     cur = conn.cursor()
 
+    # users table – store passwords as BLOB for bcrypt
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
             password BLOB
-        );
+        )
     """)
 
+    # scores table – record all best scores
     cur.execute("""
         CREATE TABLE IF NOT EXISTS scores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             score INTEGER
-        );
+        )
     """)
 
     conn.commit()
@@ -29,18 +31,17 @@ def add_user(username, password_hash):
         conn = sqlite3.connect("snake.db")
         cur = conn.cursor()
 
-        # store as BLOB explicitly
-        cur.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            (username, sqlite3.Binary(password_hash))
-        )
+        cur.execute("""
+            INSERT INTO users (username, password)
+            VALUES (?, ?)
+        """, (username, sqlite3.Binary(password_hash)))
 
         conn.commit()
         conn.close()
         return True
 
     except Exception as e:
-        print("DB add_user error:", e)
+        print("add_user ERROR:", e)
         return False
 
 
@@ -54,13 +55,13 @@ def verify_user(username):
     conn.close()
 
     if row:
-        user_id, uname, password_blob = row
+        user_id, uname, pwd = row
 
-        # ensure password is bytes (SQLite might return memoryview)
-        if isinstance(password_blob, memoryview):
-            password_blob = password_blob.tobytes()
+        # Convert from memoryview → bytes
+        if isinstance(pwd, memoryview):
+            pwd = pwd.tobytes()
 
-        return (user_id, uname, password_blob)
+        return (user_id, uname, pwd)
 
     return None
 
@@ -69,14 +70,17 @@ def add_score(username, score):
     conn = sqlite3.connect("snake.db")
     cur = conn.cursor()
 
-    # check current best for this user
+    # Retrieve existing best score
     cur.execute("SELECT MAX(score) FROM scores WHERE username = ?", (username,))
     row = cur.fetchone()
     best = row[0] if row and row[0] is not None else None
 
-    # only store if it's a new personal best
+    # Only insert if new best score
     if best is None or score > best:
-        cur.execute("INSERT INTO scores (username, score) VALUES (?, ?)", (username, score))
+        cur.execute(
+            "INSERT INTO scores (username, score) VALUES (?, ?)",
+            (username, score)
+        )
         conn.commit()
 
     conn.close()
@@ -86,15 +90,14 @@ def get_leaderboard():
     conn = sqlite3.connect("snake.db")
     cur = conn.cursor()
 
-    # one row per user: their best score
+    # GROUP BY → only show best score per user
     cur.execute("""
-        SELECT username, MAX(score) as best_score
+        SELECT username, MAX(score)
         FROM scores
         GROUP BY username
-        ORDER BY best_score DESC
-        LIMIT 20
+        ORDER BY MAX(score) DESC
     """)
+
     rows = cur.fetchall()
     conn.close()
     return rows
-
