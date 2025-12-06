@@ -8,14 +8,28 @@
 <body>
 
 <h2>Welcome, {{ username }}!</h2>
-<a href="/leaderboard">Leaderboard</a> | <a href="/logout">Logout</a>
 
-<canvas id="gameCanvas" width="400" height="400"></canvas>
+<div style="display:flex; justify-content:center; gap:40px; align-items:flex-start;">
+
+    <!-- LEFT: LIVE LEADERBOARD -->
+    <div id="leaderboardBox" style="width:200px; color:white;">
+        <h3>Leaderboard</h3>
+        <ul id="leaderboardList"></ul>
+    </div>
+
+    <!-- RIGHT: GAME + SCORE -->
+    <div>
+        <h3>Score: <span id="scoreDisplay">0</span></h3>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+
+</div>
+
+<a href="/logout">Logout</a>
 
 <script src="/static/snake.js"></script>
 <script>
     startSnake("{{ username }}");
 </script>
-
 </body>
 </html>
