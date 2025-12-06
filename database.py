@@ -28,21 +28,41 @@ def add_user(username, password_hash):
     try:
         conn = sqlite3.connect("snake.db")
         cur = conn.cursor()
-        cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password_hash))
+
+        # store as BLOB explicitly
+        cur.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, sqlite3.Binary(password_hash))
+        )
+
         conn.commit()
         conn.close()
         return True
-    except:
+
+    except Exception as e:
+        print("DB add_user error:", e)
         return False
 
 
 def verify_user(username):
     conn = sqlite3.connect("snake.db")
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-    user = cur.fetchone()
+
+    cur.execute("SELECT id, username, password FROM users WHERE username = ?", (username,))
+    row = cur.fetchone()
+
     conn.close()
-    return user
+
+    if row:
+        user_id, uname, password_blob = row
+
+        # ensure password is bytes (SQLite might return memoryview)
+        if isinstance(password_blob, memoryview):
+            password_blob = password_blob.tobytes()
+
+        return (user_id, uname, password_blob)
+
+    return None
 
 
 def add_score(username, score):
