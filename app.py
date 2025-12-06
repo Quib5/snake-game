@@ -109,9 +109,14 @@ def tick(data):
         game.step()
 
         if game.game_over:
-            score = game.score
-            add_score(username, score)
-            emit("game_over", {"score": score})
+            if not hasattr(game, "score_saved"):
+                score = game.score
+                add_score(username, score)
+                game.score_saved = True  # mark as saved
+            emit("game_over", {"score": game.score})
+            return  # stop processing further ticks
+
+        # this might need to be deleted if the score update isn't working...
         else:
             emit("state_update", game.get_state())
 
