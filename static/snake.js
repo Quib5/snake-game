@@ -61,21 +61,26 @@ function startSnake(user) {
         if (!paused) {
             socket.emit("tick", {username: username});
         }
-    }, 150);
+    }, 120);
 }
 
 function draw(snake, food, score) {
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, 400, 400);
+    // Clear entire canvas ONCE
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "lime";
-    snake.forEach(([x, y]) => {
-        ctx.fillRect(x * 20, y * 20, 18, 18);
-    });
+    // Draw snake (fast path)
+    ctx.fillStyle = "#00cc33";
+    for (let i = 0; i < snake.length; i++) {
+        let x = snake[i][0] * 20;
+        let y = snake[i][1] * 20;
+        ctx.fillRect(x, y, 18, 18);
+    }
 
+    // Draw food
     ctx.fillStyle = "red";
     ctx.fillRect(food[0] * 20, food[1] * 20, 18, 18);
 }
