@@ -7,6 +7,7 @@ class SnakeGame:
         self.food = self._new_food()
         self.score = 0
         self.game_over = False
+        self.score_saved = False
 
     def _new_food(self):
         return (random.randint(0, 19), random.randint(0, 19))
