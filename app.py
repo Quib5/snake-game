@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit
 from snake_logic import SnakeGame
 from database import init_db, add_user, verify_user, add_score, get_leaderboard
 import bcrypt
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -52,6 +53,12 @@ def register():
             return render_template("register.html", error="Username already exists")
 
     return render_template("register.html")
+
+@app.route("/leaderboard-data")
+def leaderboard_data():
+    board = get_leaderboard()
+    return jsonify([{"username": row[0], "score": row[1]} for row in board])
+
 
 
 @app.route("/game")
@@ -114,3 +121,5 @@ import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     socketio.run(app, host="0.0.0.0", port=port)
+
+
