@@ -8,8 +8,10 @@ function startSnake(user) {
     socket.emit("start_game", {username: username});
 
     socket.on("state_update", (state) => {
-        draw(state.snake, state.food, state.score);
+    document.getElementById("scoreDisplay").textContent = state.score;
+    draw(state.snake, state.food, state.score);
     });
+
 
     socket.on("game_over", (data) => {
         alert("Game Over! Score: " + data.score);
