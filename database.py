@@ -48,15 +48,33 @@ def verify_user(username):
 def add_score(username, score):
     conn = sqlite3.connect("snake.db")
     cur = conn.cursor()
-    cur.execute("INSERT INTO scores (username, score) VALUES (?, ?)", (username, score))
-    conn.commit()
+
+    # check current best for this user
+    cur.execute("SELECT MAX(score) FROM scores WHERE username = ?", (username,))
+    row = cur.fetchone()
+    best = row[0] if row and row[0] is not None else None
+
+    # only store if it's a new personal best
+    if best is None or score > best:
+        cur.execute("INSERT INTO scores (username, score) VALUES (?, ?)", (username, score))
+        conn.commit()
+
     conn.close()
 
 
 def get_leaderboard():
     conn = sqlite3.connect("snake.db")
     cur = conn.cursor()
-    cur.execute("SELECT username, score FROM scores ORDER BY score DESC LIMIT 20")
+
+    # one row per user: their best score
+    cur.execute("""
+        SELECT username, MAX(score) as best_score
+        FROM scores
+        GROUP BY username
+        ORDER BY best_score DESC
+        LIMIT 20
+    """)
     rows = cur.fetchall()
     conn.close()
     return rows
+
