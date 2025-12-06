@@ -45,3 +45,20 @@ function draw(snake, food, score) {
     ctx.fillStyle = "red";
     ctx.fillRect(food[0] * 20, food[1] * 20, 18, 18);
 }
+
+// LIVE LEADERBOARD POLLING
+function updateLeaderboard() {
+    fetch("/leaderboard-data")
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById("leaderboardList");
+            list.innerHTML = "";
+            data.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `${item.username}: ${item.score}`;
+                list.appendChild(li);
+            });
+        });
+}
+
+setInterval(updateLeaderboard, 1500); // update every 1.5s
