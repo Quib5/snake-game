@@ -27,14 +27,13 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip()
         password = request.form["password"].encode("utf-8")
 
         user = verify_user(username)
 
         if user:
-            stored_hash = user[2]  # bytes from DB
-
+            stored_hash = user[2]
             if bcrypt.checkpw(password, stored_hash):
                 session["username"] = username
                 return redirect("/game")
@@ -44,17 +43,16 @@ def login():
     return render_template("login.html")
 
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip()
         password = request.form["password"].encode("utf-8")
 
         hashed = bcrypt.hashpw(password, bcrypt.gensalt())
 
-        success = add_user(username, hashed)
-
-        if success:
+        if add_user(username, hashed):
             return redirect("/login")
         else:
             return render_template("register.html", error="Username already exists")
