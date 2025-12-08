@@ -38,7 +38,7 @@ def login():
                 session["username"] = username
                 return redirect("/game")
 
-        return render_template("login.html", error="Invalid username or password")
+        return render_template("login.html", error="Invalid username or password. OR Sign up to create an account below.")
 
     return render_template("login.html")
 
